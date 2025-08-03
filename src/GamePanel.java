@@ -2,11 +2,16 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
+import java.util.List;
+
 
 public class GamePanel extends JPanel implements ActionListener, KeyListener {
     private Timer timer;
     private Tank player1;
     private Tank player2;
+    private List<Wall> walls = new ArrayList<Wall>();
+
+
 
     public GamePanel() {
         setPreferredSize(new Dimension(800, 600));
@@ -14,6 +19,15 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 
         player1 = new Tank(200, 300, "tank1.png"); // WASD
         player2 = new Tank(600, 300, "tank2.png"); // Arrows
+
+        // Creates wall
+        walls.add(new Wall(100, 100));
+        walls.add(new Wall(300, 200));
+        walls.add(new Wall(500, 400));
+        // Pass wall data to tanks
+        player1.setWalls(walls);
+        player2.setWalls(walls);
+
 
         setFocusable(true);
         addKeyListener(this);
@@ -26,7 +40,9 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         Graphics2D g2d = (Graphics2D) g;
-
+        for (Wall wall : walls) {
+            wall.draw(g);
+        }
         player1.draw(g2d);
         player2.draw(g2d);
     }

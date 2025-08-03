@@ -1,112 +1,86 @@
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.List;
 import javax.imageio.ImageIO;
-
-
-
+import java.util.ArrayList;
 
 public class Tank {
     private int x, y;
     private double angle;
-    private int speed = 3;
     private BufferedImage image;
-    private ArrayList<Bullet> bullets;
-
+    private String imagePath;
+    private List<Bullet> bullets;
+    private List<Wall> walls; // ADDED: Wall reference for collision (not yet used)
 
     public Tank(int x, int y, String imagePath) {
         this.x = x;
         this.y = y;
+        this.imagePath = imagePath;
         this.angle = 0;
         this.bullets = new ArrayList<>();
+        loadImage();
+    }
 
+    private void loadImage() {
         try {
-            image = ImageIO.read(getClass().getClassLoader().getResourceAsStream(imagePath));
-        } catch (IOException | IllegalArgumentException e) {
-            System.err.println("Tank image could not be loaded: " + imagePath);
+            image = ImageIO.read(new File("res/" + imagePath));
+        } catch (IOException e) {
+            System.err.println("Error loading image: res/" + imagePath);
             e.printStackTrace();
         }
     }
 
-    public void draw(Graphics2D g2d) {
-        if (image != null) {
-            int cx = image.getWidth() / 2;
-            int cy = image.getHeight() / 2;
 
-            g2d.translate(x + cx, y + cy);
-            g2d.rotate(Math.toRadians(angle));
-            g2d.drawImage(image, -cx, -cy, null);
-            g2d.rotate(-Math.toRadians(angle));
-            g2d.translate(-(x + cx), -(y + cy));
-        } else {
-            g2d.setColor(Color.GREEN);
-            g2d.fillRect(x, y, 50, 50);
-        }
+    public void setWalls(List<Wall> walls) {
+        this.walls = walls;
+    }
 
-        for (Bullet b : bullets) {
-            b.draw(g2d);
+    public void draw(Graphics2D g) {
+        if (image == null) return;
+
+        int w = image.getWidth();
+        int h = image.getHeight();
+        g.rotate(Math.toRadians(angle), x + w / 2, y + h / 2);
+        g.drawImage(image, x, y, null);
+        g.rotate(-Math.toRadians(angle), x + w / 2, y + h / 2);
+
+        for (Bullet bullet : bullets) {
+            bullet.draw(g);
         }
     }
 
     public void moveForward() {
-        x += (int) (speed * Math.cos(Math.toRadians(angle)));
-        y += (int) (speed * Math.sin(Math.toRadians(angle)));
+        x += (int)(Math.cos(Math.toRadians(angle)) * 5);
+        y += (int)(Math.sin(Math.toRadians(angle)) * 5);
     }
 
     public void moveBackward() {
-        x -= (int) (speed * Math.cos(Math.toRadians(angle)));
-        y -= (int) (speed * Math.sin(Math.toRadians(angle)));
+        x -= (int)(Math.cos(Math.toRadians(angle)) * 5);
+        y -= (int)(Math.sin(Math.toRadians(angle)) * 5);
     }
 
     public void rotateLeft() {
         angle -= 5;
-        if (angle < 0) angle += 360;
     }
 
     public void rotateRight() {
         angle += 5;
-        if (angle >= 360) angle -= 360;
     }
 
     public void fire() {
         int centerX = x + image.getWidth() / 2;
         int centerY = y + image.getHeight() / 2;
-
-        // IMPORTANT: barrel offset along image's default orientation (right-facing)
-        int offsetX = (int)(image.getWidth() / 2 * Math.cos(Math.toRadians(angle)));
-        int offsetY = (int)(image.getWidth() / 2 * Math.sin(Math.toRadians(angle)));
-
-        int bulletX = centerX + offsetX - Bullet.WIDTH / 2;
-        int bulletY = centerY + offsetY - Bullet.HEIGHT / 2;
-
-        bullets.add(new Bullet(bulletX, bulletY, angle));
+        bullets.add(new Bullet(centerX, centerY, angle));
     }
 
-
-
-
     public void update() {
-        Iterator<Bullet> iter = bullets.iterator();
-        while (iter.hasNext()) {
-            Bullet b = iter.next();
-            b.update();
-            if (b.isOffScreen(800, 600)) {
-                iter.remove();
-            }
+        bullets.removeIf(b -> b.isOffScreen(800, 600));
+        for (Bullet bullet : bullets) {
+            bullet.update();
         }
     }
 
-    public ArrayList<Bullet> getBullets() {
-        return bullets;
-    }
-
-    public int getX() {
-        return x;
-    }
-
-    public int getY() {
-        return y;
-    }
 }
+
