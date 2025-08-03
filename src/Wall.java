@@ -18,4 +18,12 @@ public class Wall {
     public Rectangle getBounds() {
         return new Rectangle(x, y, SIZEX, SIZEY);
     }
+
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
+    }
 }
