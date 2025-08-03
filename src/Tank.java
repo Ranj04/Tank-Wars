@@ -5,12 +5,16 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import javax.imageio.ImageIO;
 
+
+
+
 public class Tank {
     private int x, y;
     private double angle;
     private int speed = 3;
     private BufferedImage image;
     private ArrayList<Bullet> bullets;
+
 
     public Tank(int x, int y, String imagePath) {
         this.x = x;
@@ -69,8 +73,19 @@ public class Tank {
     public void fire() {
         int centerX = x + image.getWidth() / 2;
         int centerY = y + image.getHeight() / 2;
-        bullets.add(new Bullet(centerX, centerY, angle));
+
+        // IMPORTANT: barrel offset along image's default orientation (right-facing)
+        int offsetX = (int)(image.getWidth() / 2 * Math.cos(Math.toRadians(angle)));
+        int offsetY = (int)(image.getWidth() / 2 * Math.sin(Math.toRadians(angle)));
+
+        int bulletX = centerX + offsetX - Bullet.WIDTH / 2;
+        int bulletY = centerY + offsetY - Bullet.HEIGHT / 2;
+
+        bullets.add(new Bullet(bulletX, bulletY, angle));
     }
+
+
+
 
     public void update() {
         Iterator<Bullet> iter = bullets.iterator();

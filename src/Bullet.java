@@ -1,49 +1,51 @@
 import java.awt.*;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 import javax.imageio.ImageIO;
+import java.io.IOException;
 
 public class Bullet {
-    private int x, y;
-    private final int speed = 8;
-    private double angle;
+    private double x, y;
+    private double angle; // in radians
+    private final int speed = 10;
     private BufferedImage image;
+    public static final int WIDTH = 10;
+    public static final int HEIGHT = 10;
 
-    public Bullet(int x, int y, double angle) {
+    public Bullet(int x, int y, double angleDegrees) {
         this.x = x;
         this.y = y;
-        this.angle = angle;
+        this.angle = Math.toRadians(angleDegrees); // convert once in constructor
 
         try {
             image = ImageIO.read(getClass().getClassLoader().getResourceAsStream("shell.gif"));
-        } catch (IOException | IllegalArgumentException e) {
-            System.err.println("Bullet image could not be loaded.");
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     public void update() {
-        x += (int)(speed * Math.cos(Math.toRadians(angle)));
-        y += (int)(speed * Math.sin(Math.toRadians(angle)));
+        x += speed * Math.cos(angle);
+        y += speed * Math.sin(angle);
     }
 
     public void draw(Graphics2D g2d) {
-        if (image != null) {
-            int cx = image.getWidth() / 2;
-            int cy = image.getHeight() / 2;
+        AffineTransform original = g2d.getTransform();
 
-            g2d.translate(x + cx, y + cy);
-            g2d.rotate(Math.toRadians(angle));
-            g2d.drawImage(image, -cx, -cy, null);
-            g2d.rotate(-Math.toRadians(angle));
-            g2d.translate(-(x + cx), -(y + cy));
-        } else {
-            g2d.setColor(Color.YELLOW);
-            g2d.fillOval(x, y, 10, 10);
-        }
+        // Translate to the center of the bullet
+        g2d.translate(x + image.getWidth() / 2, y + image.getHeight() / 2);
+
+        // Rotate the bullet to match the tank's angle
+        g2d.rotate(angle); // already in radians from constructor
+
+        // Draw the image centered
+        g2d.drawImage(image, -image.getWidth() / 2, -image.getHeight() / 2, null);
+
+        g2d.setTransform(original);
     }
 
+
     public boolean isOffScreen(int width, int height) {
-        return x < -20 || x > width + 20 || y < -20 || y > height + 20;
+        return x < 0 || y < 0 || x > width || y > height;
     }
 }
