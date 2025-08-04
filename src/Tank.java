@@ -10,17 +10,21 @@ import java.util.List;
 public class Tank {
     private double x, y;
     private double angle = 270;
+    private String imagePath;
     private BufferedImage image;
     private int speed = 4;
     private int rotationSpeed = 4;
     private List<Bullet> bullets = new ArrayList<>();
     private int lives = 3;
     private boolean alive = true;
+    private int playerNumber;
     private List<Wall> walls = new ArrayList<>();
 
-    public Tank(double x, double y, String imagePath) {
+    public Tank(double x, double y, String imagePath, int playerNumber) {
         this.x = x;
         this.y = y;
+        this.playerNumber = playerNumber;
+        this.imagePath = imagePath;
 
         try {
             image = ImageIO.read(new File("res/" + imagePath));
@@ -28,6 +32,7 @@ public class Tank {
             System.out.println("Error loading tank image: " + imagePath);
         }
     }
+
 
     public void moveForward() {
         double newX = x + Math.cos(Math.toRadians(angle)) * speed;
@@ -141,6 +146,12 @@ public class Tank {
         this.lives = 3;
         this.alive = true;
         this.bullets.clear();
+
+        try {
+            image = ImageIO.read(new File("res/" + imagePath)); // reload from saved path
+        } catch (IOException e) {
+            System.out.println("Error reloading tank image: " + imagePath);
+        }
     }
 
     public double getX() {

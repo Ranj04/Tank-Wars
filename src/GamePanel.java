@@ -1,6 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -22,8 +23,9 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         setBackground(Color.BLACK);
         setLayout(null);
 
-        player1 = new Tank(200, 300, "tank1.png");
-        player2 = new Tank(1000, 300, "tank2.png");
+        player1 = new Tank(200, 300, "tank1.png", 1);
+        player2 = new Tank(1000, 300, "tank2.png", 2);
+
 
         Random rand = new Random();
         walls.clear();
@@ -156,16 +158,16 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
             wall.draw(g);
         }
 
-        if (player1.isAlive()) player1.draw(g2d);
-        if (player2.isAlive()) player2.draw(g2d);
+        //if (player1.isAlive()) player1.draw(g2d);
+        //if (player2.isAlive()) player2.draw(g2d);
 
         // health bars
-        if (player1.isAlive()) {
-            drawHealthBar(g2d, (int)player1.getX() + 30, (int)player1.getY(), player1.getLives(), 3);
-        }
-        if (player2.isAlive()) {
-            drawHealthBar(g2d, (int)player2.getX() + 30, (int)player2.getY(), player2.getLives(), 3);
-        }
+        //if (player1.isAlive()) {
+            //drawHealthBar(g2d, (int)player1.getX() + 30, (int)player1.getY(), player1.getLives(), 3);
+        //}
+       // if (player2.isAlive()) {
+            //drawHealthBar(g2d, (int)player2.getX() + 30, (int)player2.getY(), player2.getLives(), 3);
+        //}
 
         g.setFont(new Font("Arial", Font.BOLD, 36));
         g.setColor(new Color(180, 0, 0));
@@ -179,6 +181,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         g.setColor(Color.WHITE);
         g.drawString("Lives: " + player2.getLives(), 1300, 100);
 
+        drawSplitScreen(g);
         drawMiniMap(g2d);
 
         if (gameOver) {
@@ -290,6 +293,69 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
             g.fillRect(tank2X, tank2Y, 6, 6);
         }
     }
+
+    private void drawSplitScreen(Graphics g) {
+        BufferedImage leftView = new BufferedImage(getWidth() / 2, getHeight(), BufferedImage.TYPE_INT_ARGB);
+        BufferedImage rightView = new BufferedImage(getWidth() / 2, getHeight(), BufferedImage.TYPE_INT_ARGB);
+
+        Graphics2D gLeft = leftView.createGraphics();
+        Graphics2D gRight = rightView.createGraphics();
+
+        // Scale down camera view to each half
+        drawSceneForPlayer(gLeft, player1);
+        drawSceneForPlayer(gRight, player2);
+
+        gLeft.dispose();
+        gRight.dispose();
+
+        g.drawImage(leftView, 0, 0, null);
+        g.drawImage(rightView, getWidth() / 2, 0, null);
+
+        // Optional: draw vertical divider
+        g.setColor(Color.BLACK);
+        g.fillRect(getWidth() / 2 - 2, 0, 4, getHeight());
+    }
+
+    private void drawSceneForPlayer(Graphics2D g2d, Tank player) {
+        int viewWidth = getWidth() / 2;
+        int viewHeight = getHeight();
+
+        // Calculate camera offset to center on the tank
+        int camX = (int) player.getX() - viewWidth / 2;
+        int camY = (int) player.getY() - viewHeight / 2;
+
+        // Clamp camera so it doesn’t show empty space
+        camX = Math.max(0, Math.min(camX, 1600 - viewWidth));
+        camY = Math.max(0, Math.min(camY, 900 - viewHeight));
+
+        // Apply camera transform
+        g2d.translate(-camX, -camY);
+
+        // Background
+        g2d.setColor(Color.BLACK);
+        g2d.fillRect(camX, camY, viewWidth, viewHeight);
+
+        // Draw walls
+        for (Wall wall : walls) {
+            wall.draw(g2d);
+        }
+
+        // Draw both tanks and their health bars
+        if (player1.isAlive()) {
+            player1.draw(g2d);
+            drawHealthBar(g2d, (int) player1.getX() + 30, (int) player1.getY(), player1.getLives(), 3);
+        }
+
+        if (player2.isAlive()) {
+            player2.draw(g2d);
+            drawHealthBar(g2d, (int) player2.getX() + 30, (int) player2.getY(), player2.getLives(), 3);
+        }
+
+        // Undo transform
+        g2d.translate(camX, camY);
+    }
+
+
 
     private void restartGame() {
         gameOver = false;
