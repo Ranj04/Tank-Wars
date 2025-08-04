@@ -70,12 +70,23 @@ public class Tank {
     }
 
     public void update() {
-        bullets.removeIf(b -> !b.isAlive());
-
+        List<Bullet> toRemove = new ArrayList<>();
         for (Bullet b : bullets) {
             b.update();
+            for (Wall wall : walls) {
+                if (b.getBounds().intersects(wall.getBounds())) {
+                    b.setAlive(false);
+                    // Destroy wall if it's breakable
+                    if (wall.isBreakable()) {
+                        walls.remove(wall);
+                    }
+                    break;
+                }
+            }
         }
+        bullets.removeIf(b -> !b.isAlive());
     }
+
 
     public void draw(Graphics2D g2d) {
         if (!alive) return;

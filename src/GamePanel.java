@@ -142,7 +142,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
             g.drawString(title, titleX, titleY);
 
             g.setColor(Color.WHITE);
-            g.setFont(new Font("Arial", Font.BOLD, 35));
+            g.setFont(new Font("Arial", Font.BOLD, 25));
             String instruction = "Press ENTER to Start";
             FontMetrics instrFm = g.getFontMetrics();
             int instrX = (getWidth() - instrFm.stringWidth(instruction)) / 2;
@@ -151,7 +151,10 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
             return;
         }
 
-        for (Wall wall : walls) wall.draw(g);
+        for (int i = 0; i < walls.size(); i++) {
+            Wall wall = walls.get(i);
+            wall.draw(g);
+        }
 
         if (player1.isAlive()) player1.draw(g2d);
         if (player2.isAlive()) player2.draw(g2d);
