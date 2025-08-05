@@ -22,6 +22,8 @@ public class Tank {
     private int playerNumber;
     private boolean shielded = false;
     private List<Wall> walls = new ArrayList<>();
+    private boolean doubleDamage = false;
+
 
 
     public Tank(double x, double y, String imagePath, int playerNumber) {
@@ -132,7 +134,13 @@ public class Tank {
         for (Bullet bullet : bullets) {
             if (bullet.getBounds().intersects(other.getBounds())) {
                 if (!other.isShielded()) {
-                    other.loseLife(); // or .takeDamage() if you added that method
+                    if (this.doubleDamage) {
+                        other.loseLife();
+                        other.loseLife(); // deal 2x damage
+                    } else {
+                        other.loseLife();
+                    }
+
                 }
                 bullet.setAlive(false);
                 toRemove.add(bullet);
@@ -213,6 +221,15 @@ public class Tank {
     public void setShielded(boolean shielded) {
         this.shielded = shielded;
     }
+
+    public boolean hasDoubleDamage() {
+        return doubleDamage;
+    }
+
+    public void setDoubleDamage(boolean doubleDamage) {
+        this.doubleDamage = doubleDamage;
+    }
+
 
 
 

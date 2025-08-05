@@ -70,6 +70,8 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         }
         powerUps.add(new Shield(300, 400, 1)); // Red shield for tank1
         powerUps.add(new Shield(1200, 400, 2)); // Blue shield for tank2
+        powerUps.add(new DoubleDamage(700, 500));
+
 
 
 
@@ -198,12 +200,12 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         drawMiniMap(g2d);
 
         if (gameOver) {
-            g.setFont(new Font("Segoe UI Emoji", Font.BOLD, 75));
-            g.setColor(Color.WHITE);
+            g.setFont(new Font("Impact", Font.BOLD, 100));
+            g.setColor(new Color(178, 34, 34));
             FontMetrics metrics = g.getFontMetrics(g.getFont());
-            int x = (getWidth() - metrics.stringWidth("Game Over!")) / 2;
+            int x = (getWidth() - metrics.stringWidth("Game Over !")) / 2;
             int y = (getHeight() - metrics.getHeight()) / 2;
-            g.drawString("GAME OVER!", x, y);
+            g.drawString("GAME OVER !", x, y);
 
             g.setFont(new Font("Segoe UI Emoji", Font.BOLD, 48));
             metrics = g.getFontMetrics(g.getFont());
