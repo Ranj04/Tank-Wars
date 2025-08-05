@@ -14,6 +14,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
     private Tank player1;
     private Tank player2;
     private List<Wall> walls = new ArrayList<>();
+    private List<PowerUp> powerUps = new ArrayList<>();
     private boolean gameOver = false;
     private boolean showStartScreen = true;
     private String winner = "";
@@ -63,6 +64,11 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 
         player1.setWalls(walls);
         player2.setWalls(walls);
+        SpeedBoost boost = generateValidSpeedBoost(walls);
+        if (boost != null) {
+            powerUps.add(boost);
+        }
+
 
         setFocusable(true);
         addKeyListener(this);
@@ -77,16 +83,20 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         restartButton.setFont(buttonFont);
         exitButton.setFont(buttonFont);
 
-        restartButton.setBackground(Color.BLACK);
+        restartButton.setBackground(new Color(0, 0, 0, 0)); // Transparent background
         restartButton.setForeground(Color.WHITE);
         restartButton.setFocusPainted(false);
         restartButton.setBorder(null);
+        restartButton.setOpaque(false); // Make button transparent
+        restartButton.setContentAreaFilled(false); // Remove button fill
         restartButton.setHorizontalAlignment(SwingConstants.CENTER);
 
-        exitButton.setBackground(Color.BLACK);
+        exitButton.setBackground(new Color(0, 0, 0, 0)); // Transparent background
         exitButton.setForeground(Color.WHITE);
         exitButton.setFocusPainted(false);
         exitButton.setBorder(null);
+        exitButton.setOpaque(false); // Make button transparent
+        exitButton.setContentAreaFilled(false); // Remove button fill
         exitButton.setHorizontalAlignment(SwingConstants.CENTER);
 
         restartButton.setVisible(false);
@@ -212,6 +222,21 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         player1.update();
         player2.update();
 
+        List<PowerUp> collected = new ArrayList<>();
+
+        for (PowerUp powerUp : powerUps) {
+            if (player1.getBounds().intersects(powerUp.getBounds())) {
+                powerUp.apply(player1);
+                collected.add(powerUp);
+            } else if (player2.getBounds().intersects(powerUp.getBounds())) {
+                powerUp.apply(player2);
+                collected.add(powerUp);
+            }
+        }
+
+        powerUps.removeAll(collected);
+
+
         if (!gameOver) {
             player1.checkBulletHits(player2);
             if (!player2.isAlive()) {
@@ -236,7 +261,6 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
             repaint();
             return;
         }
-
         if (gameOver) return;
 
         int code = e.getKeyCode();
@@ -340,6 +364,10 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
             wall.draw(g2d);
         }
 
+        for (PowerUp powerUp : powerUps) {
+            powerUp.draw(g2d);
+        }
+
         // Draw both tanks and their health bars
         if (player1.isAlive()) {
             player1.draw(g2d);
@@ -353,7 +381,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 
         g2d.setFont(new Font("Arial", Font.BOLD, 36));
         g2d.setColor(player == player1 ? Color.RED : Color.BLUE);
-        g2d.drawString(player == player1 ? "Player 1 View" : "Player 2 View", camX + 30, camY + 40);
+        g2d.drawString(player == player1 ? "Player 1" : "Player 2", camX + 30, camY + 40);
         g2d.setFont(new Font("Arial", Font.BOLD, 24));
         g2d.setColor(Color.WHITE);
         g2d.drawString("Lives: " + player.getLives(), camX + 30, camY + 75);
@@ -370,6 +398,32 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
             g2d.fillRect(0, 0, viewWidth, viewHeight);
         }
 
+    }
+
+    private SpeedBoost generateValidSpeedBoost(List<Wall> walls) {
+        int maxAttempts = 100;
+        int x, y;
+
+        for (int attempt = 0; attempt < maxAttempts; attempt++) {
+            x = (int) (Math.random() * (1600 - 60)) + 30;
+            y = (int) (Math.random() * (900 - 60)) + 30;
+
+            Rectangle boostBounds = new Rectangle(x, y, 60, 60);
+            boolean overlapsWall = false;
+
+            for (Wall wall : walls) {
+                if (boostBounds.intersects(wall.getBounds())) {
+                    overlapsWall = true;
+                    break;
+                }
+            }
+
+            if (!overlapsWall) {
+                return new SpeedBoost(x, y); // Found valid spawn!
+            }
+        }
+
+        return null; // No valid position after attempts
     }
 
     private void restartGame() {
