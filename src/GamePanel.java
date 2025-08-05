@@ -68,6 +68,9 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         if (boost != null) {
             powerUps.add(boost);
         }
+        powerUps.add(new Shield(300, 400, 1)); // Red shield for tank1
+        powerUps.add(new Shield(1200, 400, 2)); // Blue shield for tank2
+
 
 
         setFocusable(true);

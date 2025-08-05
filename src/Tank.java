@@ -20,6 +20,7 @@ public class Tank {
     private int lives = 3;
     private boolean alive = true;
     private int playerNumber;
+    private boolean shielded = false;
     private List<Wall> walls = new ArrayList<>();
 
 
@@ -130,13 +131,17 @@ public class Tank {
 
         for (Bullet bullet : bullets) {
             if (bullet.getBounds().intersects(other.getBounds())) {
+                if (!other.isShielded()) {
+                    other.loseLife(); // or .takeDamage() if you added that method
+                }
+                bullet.setAlive(false);
                 toRemove.add(bullet);
-                other.loseLife();
             }
         }
 
         bullets.removeAll(toRemove);
     }
+
 
     public Rectangle getBounds() {
         return new Rectangle((int) x, (int) y, image.getWidth(), image.getHeight());
@@ -190,9 +195,25 @@ public class Tank {
         return speed;
     }
 
+    public int getPlayerNumber() {
+        return playerNumber;
+    }
+    public void takeDamage() {
+        loseLife();
+    }
+
     public void setActivePowerUpName(String name) {
         this.activePowerUpName = name;
     }
+
+    public boolean isShielded() {
+        return shielded;
+    }
+
+    public void setShielded(boolean shielded) {
+        this.shielded = shielded;
+    }
+
 
 
 
