@@ -312,7 +312,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         g.drawImage(rightView, getWidth() / 2, 0, null);
 
         // Optional: draw vertical divider
-        g.setColor(Color.BLACK);
+        g.setColor(new Color(75, 83, 32));
         g.fillRect(getWidth() / 2 - 2, 0, 4, getHeight());
     }
 
@@ -351,11 +351,26 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
             drawHealthBar(g2d, (int) player2.getX() + 30, (int) player2.getY(), player2.getLives(), 3);
         }
 
+        g2d.setFont(new Font("Arial", Font.BOLD, 36));
+        g2d.setColor(player == player1 ? Color.RED : Color.BLUE);
+        g2d.drawString(player == player1 ? "Player 1 View" : "Player 2 View", camX + 30, camY + 40);
+        g2d.setFont(new Font("Arial", Font.BOLD, 24));
+        g2d.setColor(Color.WHITE);
+        g2d.drawString("Lives: " + player.getLives(), camX + 30, camY + 75);
+
         // Undo transform
         g2d.translate(camX, camY);
+
+        // Slightly tints background based on player
+        if (player == player1) {
+            g2d.setColor(new Color(255, 0, 0, 20)); // red tint
+            g2d.fillRect(0, 0, viewWidth, viewHeight);
+        } else {
+            g2d.setColor(new Color(0, 0, 255, 20)); // blue tint
+            g2d.fillRect(0, 0, viewWidth, viewHeight);
+        }
+
     }
-
-
 
     private void restartGame() {
         gameOver = false;
