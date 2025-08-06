@@ -52,13 +52,13 @@ public class Shield extends PowerUp {
 
     public void draw(Graphics g) {
         if (active && image != null) {
-            Graphics2D g2d = (Graphics2D) g;
+            Graphics2D g2 = (Graphics2D) g;
 
             int drawWidth = 30;
             int drawHeight = 30;
 
             // Center the image on (x, y)
-            g2d.drawImage(image, x - drawWidth / 2, y - drawHeight / 2, drawWidth, drawHeight, null);
+            g2.drawImage(image, x - drawWidth / 2, y - drawHeight / 2, drawWidth, drawHeight, null);
         }
     }
 

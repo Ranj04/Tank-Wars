@@ -100,30 +100,30 @@ public class Tank {
 
     }
 
-    public void draw(Graphics2D g2d) {
+    public void draw(Graphics2D g2) {
         if (!alive) return;
 
         // Save current transform
-        AffineTransform transform = g2d.getTransform();
+        AffineTransform transform = g2.getTransform();
 
         // Draw tank with rotation
-        g2d.translate(x + image.getWidth() / 2, y + image.getHeight() / 2);
-        g2d.rotate(Math.toRadians(angle));
-        g2d.drawImage(image, -image.getWidth() / 2, -image.getHeight() / 2, null);
+        g2.translate(x + image.getWidth() / 2, y + image.getHeight() / 2);
+        g2.rotate(Math.toRadians(angle));
+        g2.drawImage(image, -image.getWidth() / 2, -image.getHeight() / 2, null);
 
         // Restore transform BEFORE drawing text
-        g2d.setTransform(transform);
+        g2.setTransform(transform);
 
         // Draw power-up text above tank
         if (!activePowerUpName.isEmpty()) {
-            g2d.setColor(Color.YELLOW);
-            g2d.setFont(new Font("Arial", Font.BOLD, 12));
-            g2d.drawString("Power-Up: " + activePowerUpName, (int) x, (int) (y - 10));
+            g2.setColor(Color.YELLOW);
+            g2.setFont(new Font("Arial", Font.BOLD, 12));
+            g2.drawString("Power-Up: " + activePowerUpName, (int) x, (int) (y - 10));
         }
 
         // Draw bullets
         for (Bullet b : bullets) {
-            b.draw(g2d);
+            b.draw(g2);
         }
     }
 
@@ -239,6 +239,3 @@ public class Tank {
 
 
 }
-
-
-

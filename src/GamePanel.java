@@ -123,21 +123,21 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         add(buttonPanel);
     }
 
-    private void drawHealthBar(Graphics2D g2d, int x, int y, int currentHealth, int maxHealth) {
+    private void drawHealthBar(Graphics2D g2, int x, int y, int currentHealth, int maxHealth) {
         int barWidth = 60;
         int barHeight = 8;
         int barX = x - barWidth / 2;
         int barY = y + 65;
 
         // Background
-        g2d.setColor(Color.DARK_GRAY);
-        g2d.fillRect(barX, barY, barWidth, barHeight);
+        g2.setColor(Color.DARK_GRAY);
+        g2.fillRect(barX, barY, barWidth, barHeight);
 
         // Health bar (neon green)
         if (currentHealth > 0) {
             int healthWidth = (int) ((double) currentHealth / maxHealth * barWidth);
-            g2d.setColor(new Color(57, 255, 20));
-            g2d.fillRect(barX, barY, healthWidth, barHeight);
+            g2.setColor(new Color(57, 255, 20));
+            g2.fillRect(barX, barY, healthWidth, barHeight);
         }
     }
 
@@ -200,8 +200,9 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         drawMiniMap(g2d);
 
         if (gameOver) {
-            g.setFont(new Font("Impact", Font.BOLD, 100));
-            g.setColor(new Color(178, 34, 34));
+            // Use a less thick but still bold and impactful font for Game Over
+            g.setFont(new Font("Arial Black", Font.BOLD, 80));
+            g.setColor(new Color(71, 23, 23));
             FontMetrics metrics = g.getFontMetrics(g.getFont());
             int x = (getWidth() - metrics.stringWidth("Game Over !")) / 2;
             int y = (getHeight() - metrics.getHeight()) / 2;
@@ -215,7 +216,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
             if (winner.equals("Player 1")) g.setColor(new Color(180, 0, 0));
             else if (winner.equals("Player 2")) g.setColor(new Color(0, 90, 180));
 
-            g.drawString(winner + " wins! \uD83D\uDE0A", winnerX, winnerY);
+            g.drawString(winner + " wins  ! \uD83D\uDE0A", winnerX, winnerY);
             restartButton.setVisible(true);
             exitButton.setVisible(true);
         }
@@ -345,7 +346,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         g.fillRect(getWidth() / 2 - 2, 0, 4, getHeight());
     }
 
-    private void drawSceneForPlayer(Graphics2D g2d, Tank player) {
+    private void drawSceneForPlayer(Graphics2D g2, Tank player) {
         int viewWidth = getWidth() / 2;
         int viewHeight = getHeight();
 
@@ -358,49 +359,49 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         camY = Math.max(0, Math.min(camY, 900 - viewHeight));
 
         // Apply camera transform
-        g2d.translate(-camX, -camY);
+        g2.translate(-camX, -camY);
 
         // Background
-        g2d.setColor(Color.BLACK);
-        g2d.fillRect(camX, camY, viewWidth, viewHeight);
+        g2.setColor(Color.BLACK);
+        g2.fillRect(camX, camY, viewWidth, viewHeight);
 
         // Draw walls
         for (Wall wall : walls) {
-            wall.draw(g2d);
+            wall.draw(g2);
         }
 
         for (PowerUp powerUp : powerUps) {
-            powerUp.draw(g2d);
+            powerUp.draw(g2);
         }
 
         // Draw both tanks and their health bars
         if (player1.isAlive()) {
-            player1.draw(g2d);
-            drawHealthBar(g2d, (int) player1.getX() + 30, (int) player1.getY(), player1.getLives(), 3);
+            player1.draw(g2);
+            drawHealthBar(g2, (int) player1.getX() + 30, (int) player1.getY(), player1.getLives(), 3);
         }
 
         if (player2.isAlive()) {
-            player2.draw(g2d);
-            drawHealthBar(g2d, (int) player2.getX() + 30, (int) player2.getY(), player2.getLives(), 3);
+            player2.draw(g2);
+            drawHealthBar(g2, (int) player2.getX() + 30, (int) player2.getY(), player2.getLives(), 3);
         }
 
-        g2d.setFont(new Font("Arial", Font.BOLD, 36));
-        g2d.setColor(player == player1 ? Color.RED : Color.BLUE);
-        g2d.drawString(player == player1 ? "Player 1" : "Player 2", camX + 30, camY + 40);
-        g2d.setFont(new Font("Arial", Font.BOLD, 24));
-        g2d.setColor(Color.WHITE);
-        g2d.drawString("Lives: " + player.getLives(), camX + 30, camY + 75);
+        g2.setFont(new Font("Arial", Font.BOLD, 36));
+        g2.setColor(player == player1 ? Color.RED : Color.BLUE);
+        g2.drawString(player == player1 ? "Player 1" : "Player 2", camX + 30, camY + 40);
+        g2.setFont(new Font("Arial", Font.BOLD, 24));
+        g2.setColor(Color.WHITE);
+        g2.drawString("Lives: " + player.getLives(), camX + 30, camY + 75);
 
         // Undo transform
-        g2d.translate(camX, camY);
+        g2.translate(camX, camY);
 
         // Slightly tints background based on player
         if (player == player1) {
-            g2d.setColor(new Color(255, 0, 0, 20)); // red tint
-            g2d.fillRect(0, 0, viewWidth, viewHeight);
+            g2.setColor(new Color(255, 0, 0, 20)); // red tint
+            g2.fillRect(0, 0, viewWidth, viewHeight);
         } else {
-            g2d.setColor(new Color(0, 0, 255, 20)); // blue tint
-            g2d.fillRect(0, 0, viewWidth, viewHeight);
+            g2.setColor(new Color(0, 0, 255, 20)); // blue tint
+            g2.fillRect(0, 0, viewWidth, viewHeight);
         }
 
     }
