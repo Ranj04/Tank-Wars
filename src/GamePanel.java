@@ -1,7 +1,11 @@
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -20,12 +24,30 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
     private String winner = "";
     private List<Explosion> explosions = new ArrayList<>();
     private boolean explosionPlayed = false;
+    private Image startGif;
+    private int gifX = -200; // start off-screen left
+    private boolean startAnimationInProgress = false;
+    private boolean startAnimationDone = false;
+    private float gameAlpha = 0f;  // For fade-in
+    private Clip startSound;       // For engine sound
+
 
 
     public GamePanel() {
         setPreferredSize(new Dimension(1600, 900));
         setBackground(Color.BLACK);
         setLayout(null);
+        startGif = Toolkit.getDefaultToolkit().createImage("res/tankgif.gif");
+        startGif = Toolkit.getDefaultToolkit().createImage("res/tankgif.gif");
+
+        try {
+            AudioInputStream audioIn = AudioSystem.getAudioInputStream(new File("res/engine.wav"));
+            startSound = AudioSystem.getClip();
+            startSound.open(audioIn);
+        } catch (Exception e) {
+            System.err.println("Failed to load engine sound: " + e.getMessage());
+        }
+
 
         player1 = new Tank(200, 300, "tank1.png", 1);
         player2 = new Tank(1000, 300, "tank2.png", 2);
@@ -125,6 +147,21 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 
         add(buttonPanel);
     }
+    private Clip engineClip;
+
+    private void playEngineSound() {
+        try {
+            if (engineClip == null || !engineClip.isActive()) {
+                AudioInputStream audioIn = AudioSystem.getAudioInputStream(new File("res/engine.wav"));
+                engineClip = AudioSystem.getClip();
+                engineClip.open(audioIn);
+                engineClip.start();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 
     private void drawHealthBar(Graphics2D g2, int x, int y, int currentHealth, int maxHealth) {
         int barWidth = 60;
@@ -149,7 +186,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         super.paintComponent(g);
         Graphics2D g2d = (Graphics2D) g;
 
-        if (showStartScreen) {
+        if (showStartScreen && !startAnimationInProgress) {
             g.setColor(Color.BLACK);
             g.fillRect(0, 0, getWidth(), getHeight());
 
@@ -171,21 +208,34 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
             return;
         }
 
+        // Animate start GIF and reveal game
+        if (startAnimationInProgress && !startAnimationDone) {
+            Graphics2D g2 = (Graphics2D) g;
+            Shape originalClip = g2.getClip();
+            g2.setClip(gifX, 0, getWidth() - gifX, getHeight());
+            drawSplitScreen(g2);
+            drawMiniMap(g2);
+            g2.setClip(originalClip);
+            g2.drawImage(startGif, gifX, getHeight() / 2 - 50, 200, 100, this);
+            gifX -= 3;
+            if (gifX < -200) {
+                startAnimationInProgress = false;
+                startAnimationDone = true;
+                showStartScreen = false;
+                if (engineClip != null && engineClip.isRunning()) {
+                    engineClip.stop();
+                    engineClip.close();
+                }
+            }
+            repaint();
+            return;
+        }
+
+
         for (int i = 0; i < walls.size(); i++) {
             Wall wall = walls.get(i);
             wall.draw(g);
         }
-
-        //if (player1.isAlive()) player1.draw(g2d);
-        //if (player2.isAlive()) player2.draw(g2d);
-
-        // health bars
-        //if (player1.isAlive()) {
-            //drawHealthBar(g2d, (int)player1.getX() + 30, (int)player1.getY(), player1.getLives(), 3);
-        //}
-       // if (player2.isAlive()) {
-            //drawHealthBar(g2d, (int)player2.getX() + 30, (int)player2.getY(), player2.getLives(), 3);
-        //}
 
         g.setFont(new Font("Arial", Font.BOLD, 36));
         g.setColor(new Color(180, 0, 0));
@@ -237,11 +287,14 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
             if (player1.getBounds().intersects(powerUp.getBounds())) {
                 powerUp.apply(player1);
                 collected.add(powerUp);
+                playPickupSound();
             } else if (player2.getBounds().intersects(powerUp.getBounds())) {
                 powerUp.apply(player2);
                 collected.add(powerUp);
+                playPickupSound();
             }
         }
+
 
         powerUps.removeAll(collected);
 
@@ -249,6 +302,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         player1.checkBulletHits(player2);
         if (!player2.isAlive() && !explosionPlayed) {
             explosions.add(new Explosion((int) player2.getX(), (int) player2.getY()));
+            playExplosionSound();
             winner = "Player 1";
             explosionPlayed = true;
         }
@@ -256,6 +310,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         player2.checkBulletHits(player1);
         if (!player1.isAlive() && !explosionPlayed) {
             explosions.add(new Explosion((int) player1.getX(), (int) player1.getY()));
+            playExplosionSound();
             winner = "Player 2";
             explosionPlayed = true;
         }
@@ -274,13 +329,40 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         repaint();
     }
 
+    private void playPickupSound() {
+        try {
+            AudioInputStream audioIn = AudioSystem.getAudioInputStream(new File("res/pickup.wav"));
+            Clip pickupClip = AudioSystem.getClip();
+            pickupClip.open(audioIn);
+            pickupClip.start();
+        } catch (Exception e) {
+            System.err.println("Failed to play pickup sound: " + e.getMessage());
+        }
+    }
+
+    private void playExplosionSound() {
+        try {
+            AudioInputStream audioIn = AudioSystem.getAudioInputStream(new File("res/Explosion_large.wav"));
+            Clip explosionClip = AudioSystem.getClip();
+            explosionClip.open(audioIn);
+            explosionClip.start();
+        } catch (Exception e) {
+            System.err.println("Failed to play explosion sound: " + e.getMessage());
+        }
+    }
+
+
+
     @Override
     public void keyPressed(KeyEvent e) {
         if (showStartScreen && e.getKeyCode() == KeyEvent.VK_ENTER) {
-            showStartScreen = false;
+            startAnimationInProgress = true;
+            gifX = getWidth();
+            playEngineSound();
             repaint();
             return;
         }
+
         if (gameOver) return;
 
         int code = e.getKeyCode();

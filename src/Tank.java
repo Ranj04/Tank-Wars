@@ -102,26 +102,39 @@ public class Tank {
 
     public void draw(Graphics2D g2) {
         if (!alive) return;
-
-        // Save current transform
         AffineTransform transform = g2.getTransform();
 
-        // Draw tank with rotation
+        //GLOW EFFECT
+        if (!activePowerUpName.isEmpty()) {
+            long time = System.currentTimeMillis();
+            float alpha = (float) (0.5 + 0.3 * Math.sin(time * 0.005));  // Pulsing effect
+            int radius = image.getWidth() + 30;
+
+            // Set color based on power-up
+            Color glowColor = switch (activePowerUpName) {
+                case "Speed Boost" -> new Color(255, 215, 0, (int) (alpha * 255)); // yellow
+                case "Shield" -> new Color(0, 255, 255, (int) (alpha * 255)); // cyan
+                case "Double Damage" -> new Color(255, 0, 0, (int) (alpha * 255)); // red
+                default -> new Color(255, 255, 255, (int) (alpha * 255)); // white
+            };
+
+            g2.setColor(glowColor);
+            g2.fillOval((int) x + image.getWidth() / 2 - radius / 2,
+                    (int) y + image.getHeight() / 2 - radius / 2,
+                    radius, radius);
+        }
+
         g2.translate(x + image.getWidth() / 2, y + image.getHeight() / 2);
         g2.rotate(Math.toRadians(angle));
         g2.drawImage(image, -image.getWidth() / 2, -image.getHeight() / 2, null);
-
-        // Restore transform BEFORE drawing text
         g2.setTransform(transform);
 
-        // Draw power-up text above tank
         if (!activePowerUpName.isEmpty()) {
             g2.setColor(Color.YELLOW);
             g2.setFont(new Font("Arial", Font.BOLD, 12));
             g2.drawString("Power-Up: " + activePowerUpName, (int) x, (int) (y - 10));
         }
 
-        // Draw bullets
         for (Bullet b : bullets) {
             b.draw(g2);
         }
