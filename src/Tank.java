@@ -169,9 +169,12 @@ public class Tank {
     }
 
     public void loseLife() {
-        lives--;
-        if (lives <= 0) {
-            alive = false;
+        if (lives > 0) {
+            lives--;
+            if (lives <= 0) {
+                alive = false;
+                lives = 0;
+            }
         }
     }
 

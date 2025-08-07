@@ -6,11 +6,12 @@ public class TankGame {
     public static void main(String[] args) {
         JFrame frame = new JFrame("Tank Wars");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(2000, 2000);
         frame.setResizable(false);
 
         GamePanel gamePanel = new GamePanel();
         frame.add(gamePanel);
+        frame.pack(); // Use preferred size of GamePanel (1600x900)
+        frame.setLocationRelativeTo(null); // Center window
         frame.setVisible(true);
 
         // Game loop using Swing Timer

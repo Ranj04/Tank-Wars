@@ -34,14 +34,17 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
     private Clip startSound;
     private AudioPlayer backgroundMusic;
     private boolean musicStarted = false;
-    private BufferedImage muteIcon;
-    private BufferedImage volumeIcon;
+    private JSlider volumeSlider;
+    private JPanel volumePanel;
+    private JLabel sliderValue; // Make sliderValue a field
+
 
 
     public GamePanel() {
+        setLayout(null);
         setPreferredSize(new Dimension(1600, 900));
         setBackground(Color.BLACK);
-        setLayout(null);
+
         startGif = Toolkit.getDefaultToolkit().createImage("res/tankgif.gif");
         startGif = Toolkit.getDefaultToolkit().createImage("res/tankgif.gif");
 
@@ -148,18 +151,59 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         buttonPanel.add(exitButton);
 
         add(buttonPanel);
+        // Create and style the volume slider
+        volumeSlider = new JSlider(0, 100, 80); // 0 = mute, 100 = full
+        volumeSlider.setPreferredSize(new Dimension(100, 24));
+        volumeSlider.setOpaque(true);
+        volumeSlider.setFocusable(false);
+        volumeSlider.setForeground(new Color(57, 255, 20)); // neon green
+        volumeSlider.setBackground(new Color(30, 30, 30));  // dark background
+        volumeSlider.setBorder(BorderFactory.createLineBorder(new Color(75, 83, 32), 2));
+        volumeSlider.setUI(new javax.swing.plaf.metal.MetalSliderUI() {
+            @Override
+            public void paintThumb(Graphics g) {
+                g.setColor(new Color(180, 0, 0));
+                g.fillRect(thumbRect.x, thumbRect.y, thumbRect.width, thumbRect.height);
+            }
+            @Override
+            public void paintTrack(Graphics g) {
+                g.setColor(new Color(57, 255, 20));
+                g.fillRect(trackRect.x, trackRect.y + trackRect.height / 2 - 2, trackRect.width, 4);
+            }
+        });
 
-        // Background music setup
+        // Volume panel setup
+        volumePanel = new JPanel();
+        volumePanel.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 5));
+        volumePanel.setBounds(20, 780, 160, 36);   // Increase width for label
+        volumePanel.setOpaque(false);
+        volumePanel.setBackground(null);
+        volumePanel.setBorder(null);
+        volumePanel.removeAll();
+        volumePanel.add(volumeSlider);
+        // Make sliderValue a field so it doesn't get garbage collected
+        sliderValue = new JLabel(volumeSlider.getValue() + "%");
+        sliderValue.setForeground(new Color(57, 255, 20));
+        sliderValue.setFont(sliderValue.getFont().deriveFont(Font.BOLD, 16f));
+        sliderValue.setPreferredSize(new Dimension(40, 24)); // Ensure space is reserved
+        volumePanel.add(sliderValue);
+        volumeSlider.addChangeListener(e -> {
+            float volume = volumeSlider.getValue() / 100f;
+            backgroundMusic.setVolume(volume);
+            sliderValue.setText(volumeSlider.getValue() + "%");
+        });
+        volumePanel.addComponentListener(new java.awt.event.ComponentAdapter() {
+            public void componentResized(java.awt.event.ComponentEvent evt) {
+                System.out.println("Panel size: " + volumePanel.getWidth() + "x" + volumePanel.getHeight());
+                System.out.println("Slider size: " + volumeSlider.getWidth() + "x" + volumeSlider.getHeight());
+            }
+        });
+
+        add(volumePanel);
+        volumePanel.setVisible(false);
+
+
         backgroundMusic = new AudioPlayer("res/background_music.wav");
-
-
-        this.setLayout(null);
-        try {
-            muteIcon = ImageIO.read(new File("res/mute.png"));
-            volumeIcon = ImageIO.read(new File("res/volume.png"));
-        } catch (IOException e) {
-            System.err.println("Failed to load volume icons: " + e.getMessage());
-        }
 
 
     }
@@ -245,6 +289,8 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
                     engineClip.stop();
                     engineClip.close();
                 }
+                // Show volume slider after animation is done
+                volumePanel.setVisible(true);
             }
             repaint();
             return;
@@ -345,6 +391,14 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
             }
         }
 
+        // Ensure volume panel is always on top and visible after animation
+        if (!volumePanel.isVisible() && startAnimationDone && !showStartScreen) {
+            volumePanel.setVisible(true);
+            volumePanel.repaint();
+            volumePanel.revalidate();
+            setComponentZOrder(volumePanel, 0); // bring to front
+        }
+
         repaint();
     }
 
@@ -381,6 +435,10 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
             repaint();
             return;
         }
+
+        backgroundMusic.playLoop();
+        volumePanel.setVisible(true);
+
 
         if (gameOver) return;
 
