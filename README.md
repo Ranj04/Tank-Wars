@@ -16,7 +16,10 @@ Tank Wars is a two-player competitive game developed in Java for CSC 415. The ga
 - Split screen rendering for both players
 - Mini-map display
 - Health bars for each tank
-- Lives counter (3 lives minimum)
+- Volume control slider for background music
+- Split screen tinted in red and blue for Player 1 and Player 2 respectively
+- Power-ups that spawn randomly on the map
+- Lives counter 
 - Three unique power-ups (Speed Boost, Shield, Double Damage)
 - Breakable and unbreakable walls
 - Three or more map layouts (via randomized placement)
