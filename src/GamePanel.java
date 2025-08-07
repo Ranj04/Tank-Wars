@@ -1,3 +1,4 @@
+import javax.imageio.ImageIO;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
@@ -6,6 +7,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -29,8 +31,11 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
     private boolean startAnimationInProgress = false;
     private boolean startAnimationDone = false;
     private float gameAlpha = 0f;  // For fade-in
-    private Clip startSound;       // For engine sound
-
+    private Clip startSound;
+    private AudioPlayer backgroundMusic;
+    private boolean musicStarted = false;
+    private BufferedImage muteIcon;
+    private BufferedImage volumeIcon;
 
 
     public GamePanel() {
@@ -97,9 +102,6 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         powerUps.add(new Shield(1200, 400, 2)); // Blue shield for tank2
         powerUps.add(new DoubleDamage(700, 500));
 
-
-
-
         setFocusable(true);
         addKeyListener(this);
 
@@ -146,7 +148,23 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         buttonPanel.add(exitButton);
 
         add(buttonPanel);
+
+        // Background music setup
+        backgroundMusic = new AudioPlayer("res/background_music.wav");
+
+
+        this.setLayout(null);
+        try {
+            muteIcon = ImageIO.read(new File("res/mute.png"));
+            volumeIcon = ImageIO.read(new File("res/volume.png"));
+        } catch (IOException e) {
+            System.err.println("Failed to load volume icons: " + e.getMessage());
+        }
+
+
     }
+
+
     private Clip engineClip;
 
     private void playEngineSound() {
@@ -222,6 +240,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
                 startAnimationInProgress = false;
                 startAnimationDone = true;
                 showStartScreen = false;
+                backgroundMusic.playLoop();
                 if (engineClip != null && engineClip.isRunning()) {
                     engineClip.stop();
                     engineClip.close();
