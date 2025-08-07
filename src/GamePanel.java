@@ -18,6 +18,9 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
     private boolean gameOver = false;
     private boolean showStartScreen = true;
     private String winner = "";
+    private List<Explosion> explosions = new ArrayList<>();
+    private boolean explosionPlayed = false;
+
 
     public GamePanel() {
         setPreferredSize(new Dimension(1600, 900));
@@ -243,17 +246,28 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         powerUps.removeAll(collected);
 
 
-        if (!gameOver) {
-            player1.checkBulletHits(player2);
-            if (!player2.isAlive()) {
-                gameOver = true;
-                winner = "Player 1";
-            }
+        player1.checkBulletHits(player2);
+        if (!player2.isAlive() && !explosionPlayed) {
+            explosions.add(new Explosion((int) player2.getX(), (int) player2.getY()));
+            winner = "Player 1";
+            explosionPlayed = true;
+        }
 
-            player2.checkBulletHits(player1);
-            if (!player1.isAlive()) {
-                gameOver = true;
-                winner = "Player 2";
+        player2.checkBulletHits(player1);
+        if (!player1.isAlive() && !explosionPlayed) {
+            explosions.add(new Explosion((int) player1.getX(), (int) player1.getY()));
+            winner = "Player 2";
+            explosionPlayed = true;
+        }
+
+        // Update and remove finished explosions
+        for (int i = 0; i < explosions.size(); i++) {
+            Explosion explosion = explosions.get(i);
+            explosion.update();
+            if (explosion.isFinished()) {
+                explosions.remove(i);
+                i--;
+                gameOver = true;  // Only trigger game over AFTER explosion finishes
             }
         }
 
@@ -385,6 +399,11 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
             drawHealthBar(g2, (int) player2.getX() + 30, (int) player2.getY(), player2.getLives(), 3);
         }
 
+        // Draw all active explosions
+        for (Explosion explosion : explosions) {
+            explosion.draw(g2);
+        }
+
         g2.setFont(new Font("Arial", Font.BOLD, 36));
         g2.setColor(player == player1 ? Color.RED : Color.BLUE);
         g2.drawString(player == player1 ? "Player 1" : "Player 2", camX + 30, camY + 40);
@@ -440,6 +459,10 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 
         player1.reset(200, 300);
         player2.reset(1000, 300);
+
+        explosions.clear();
+        explosionPlayed = false;
+
 
         requestFocusInWindow();
         repaint();
