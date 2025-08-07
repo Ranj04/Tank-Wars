@@ -44,7 +44,7 @@ Tank Wars is a two-player competitive game developed in Java for CSC 415. The ga
 ## System Requirements
 - **Java Version:** openjdk 21.0.5 2024-10-15 LTS
 - **IDE Used:** IntelliJ IDEA
-- **Operating System:** Windows 11
+- **Operating System:** Windows 10/11, macOS, or Linux
 
 ## How to Run the Game (in IntelliJ)
 1. Clone the repository or download the source code.
