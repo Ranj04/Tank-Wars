@@ -8,15 +8,15 @@
     <script src="https://cjrtnc.leaningtech.com/4.2/loader.js"></script>
     <script>
         async function launch() {
+            console.log("index v2 — launching with /app/TankWars-Public.jar");
             try {
                 await cheerpjInit();
                 const exitCode = await cheerpjRunJar("/app/TankWars-Public.jar");
                 console.log("Game exited with code", exitCode);
             } catch (e) {
                 console.error("CheerpJ start error:", e);
-                document.getElementById("status")?.replaceChildren(
-                    document.createTextNode("Error starting game. See console.")
-                );
+                document.body.insertAdjacentHTML("afterbegin",
+                    '<div style="position:fixed;top:8px;left:8px;background:#222;color:#ddd;padding:6px 8px;border-radius:6px">Error starting game – check console</div>');
             }
         }
         window.addEventListener("load", launch);
