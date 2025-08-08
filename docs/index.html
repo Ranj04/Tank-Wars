@@ -7,15 +7,25 @@
     <script>
         async function launch() {
             await cheerpjInit(); // start CheerpJ runtime
-            // CheerpJ mirrors your site files under /app, so docs/jar/... becomes /app/jar/...
-            const exitCode = await cheerpjRunJar("/app/jar/tankgame-Ranj04.jar");
+            const exitCode = await cheerpjRunJar("/app/TankWars-Public.jar");
             console.log("Game exited with code", exitCode);
         }
         window.addEventListener("load", launch);
     </script>
     <style>
-        html, body { height:100%; margin:0; background:#111; color:#ddd; font:14px system-ui, sans-serif; }
-        .hint { position:fixed; bottom:12px; left:12px; opacity:.7 }
+        html, body {
+            height: 100%;
+            margin: 0;
+            background: #111;
+            color: #ddd;
+            font: 14px system-ui, sans-serif;
+        }
+        .hint {
+            position: fixed;
+            bottom: 12px;
+            left: 12px;
+            opacity: 0.7;
+        }
     </style>
 </head>
 <body>
