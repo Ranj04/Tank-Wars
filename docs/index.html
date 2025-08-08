@@ -8,15 +8,15 @@
     <script src="https://cjrtnc.leaningtech.com/4.2/loader.js"></script>
     <script>
         async function launch() {
-            console.log("index v2 — launching with ./TankWars-Public.jar");
+            console.log("CheerpJ HelloWorld test");
             try {
                 await cheerpjInit();
-                const exitCode = await cheerpjRunJar("./TankWars-Public.jar");
-                console.log("Game exited with code", exitCode);
+                const exitCode = await cheerpjRunJar("./HelloWorld.jar");
+                console.log("HelloWorld exited with code", exitCode);
             } catch (e) {
                 console.error("CheerpJ start error:", e);
                 document.body.insertAdjacentHTML("afterbegin",
-                    '<div style="position:fixed;top:8px;left:8px;background:#222;color:#ddd;padding:6px 8px;border-radius:6px">Error starting game – check console</div>');
+                    '<div style="position:fixed;top:8px;left:8px;background:#222;color:#ddd;padding:6px 8px;border-radius:6px">Error starting HelloWorld – check console</div>');
             }
         }
         window.addEventListener("load", launch);
