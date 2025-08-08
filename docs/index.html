@@ -9,19 +9,19 @@
     <script>
         async function launch() {
             try {
-                console.log("[CheerpJ] init…");
                 await cheerpjInit();
-                console.log("[CheerpJ] running jar…");
                 const exitCode = await cheerpjRunJar("/app/TankWars-Public.jar");
-                console.log("[CheerpJ] app exited with", exitCode);
+                console.log("Game exited with code", exitCode);
             } catch (e) {
                 console.error("CheerpJ start error:", e);
-                const box = document.getElementById("status");
-                box.textContent = "Error starting game. See DevTools Console for details.";
+                document.getElementById("status")?.replaceChildren(
+                    document.createTextNode("Error starting game. See console.")
+                );
             }
         }
         window.addEventListener("load", launch);
     </script>
+
     <style>
         html, body { height:100%; margin:0; background:#111; color:#ddd; font:14px system-ui, sans-serif; }
         .hint { position:fixed; bottom:12px; left:12px; opacity:.7 }
