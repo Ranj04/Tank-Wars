@@ -37,7 +37,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
     private JSlider volumeSlider;
     private JPanel volumePanel;
     private JLabel sliderValue; // Make sliderValue a field
-
+    private Image titleImage;
 
 
     public GamePanel() {
@@ -46,7 +46,24 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         setBackground(Color.BLACK);
 
         startGif = Toolkit.getDefaultToolkit().createImage("res/tankgif.gif");
-        startGif = Toolkit.getDefaultToolkit().createImage("res/tankgif.gif");
+        // Use ImageIcon to ensure the image is fully loaded
+        // Load Title.bmp directly from the file system
+        String titlePath = "res/Title.bmp";
+        File titleFile = new File(titlePath);
+        if (titleFile.exists()) {
+            try {
+                // Try ImageIO.read first (more reliable for BMP files)
+                titleImage = ImageIO.read(titleFile);
+                System.out.println("Loaded Title.bmp using ImageIO - Width: " + titleImage.getWidth(null) + ", Height: " + titleImage.getHeight(null));
+            } catch (IOException e) {
+                // Fallback to ImageIcon
+                titleImage = new ImageIcon(titlePath).getImage();
+                System.out.println("Loaded Title.bmp using ImageIcon - Width: " + titleImage.getWidth(null) + ", Height: " + titleImage.getHeight(null));
+            }
+        } else {
+            titleImage = null;
+            System.err.println("Could not find Title.bmp at: " + titleFile.getAbsolutePath());
+        }
 
         try {
             AudioInputStream audioIn = AudioSystem.getAudioInputStream(new File("res/engine.wav"));
@@ -252,20 +269,29 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
             g.setColor(Color.BLACK);
             g.fillRect(0, 0, getWidth(), getHeight());
 
-            g.setColor(new Color(75, 83, 32));
-            g.setFont(new Font("Arial", Font.BOLD, 80));
-            String title = "Tank Wars";
-            FontMetrics titleFm = g.getFontMetrics();
-            int titleX = (getWidth() - titleFm.stringWidth(title)) / 2;
-            int titleY = getHeight() / 2 - 50;
-            g.drawString(title, titleX, titleY);
+            // Draw the title image centered, fallback to text if not loaded
+            if (titleImage != null && titleImage.getWidth(this) > 0 && titleImage.getHeight(this) > 0) {
+                int imgWidth = titleImage.getWidth(this);
+                int imgHeight = titleImage.getHeight(this);
+                int imgX = (getWidth() - imgWidth) / 2;
+                int imgY = getHeight() / 2 - imgHeight;
+                g.drawImage(titleImage, imgX, imgY, this);
+            } else {
+                g.setColor(new Color(75, 83, 32));
+                g.setFont(new Font("Arial", Font.BOLD, 80));
+                String title = "Tank Wars";
+                FontMetrics titleFm = g.getFontMetrics();
+                int titleX = (getWidth() - titleFm.stringWidth(title)) / 2;
+                int titleY = getHeight() / 2 - 50;
+                g.drawString(title, titleX, titleY);
+            }
 
             g.setColor(Color.WHITE);
-            g.setFont(new Font("Arial", Font.BOLD, 25));
+            g.setFont(new Font("Arial", Font.BOLD, 32)); // Increased font size from 25 to 32
             String instruction = "Press ENTER to Start";
             FontMetrics instrFm = g.getFontMetrics();
             int instrX = (getWidth() - instrFm.stringWidth(instruction)) / 2;
-            int instrY = titleY + 80;
+            int instrY = (getHeight() / 2) + 80; // Moved down from +40 to +80 for better spacing
             g.drawString(instruction, instrX, instrY);
             return;
         }
