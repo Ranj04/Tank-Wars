@@ -7,7 +7,7 @@
     <script>
         async function launch() {
             await cheerpjInit(); // start CheerpJ runtime
-            const exitCode = await cheerpjRunJar("/app/TankWars-Public.jar");
+            const exitCode = await cheerpjRunJar("/docs/TankWars-Public.jar");
             console.log("Game exited with code", exitCode);
         }
         window.addEventListener("load", launch);
