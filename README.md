@@ -2,10 +2,10 @@
 
 ## Author
 **Name:** Ranjiv Jithendran  
-**Student Email:** rjithendran@sfsu.edu  
+**Email:** rjithendran@sfsu.edu / ranjiv.jithendran@gmail.com  
 
 ## Description
-Tank Wars is a two-player competitive game developed in Java for CSC 415. The game features tank movement, shooting, power-ups, destructible and indestructible walls, animations, sounds, and a dynamic split-screen view. Players battle until one runs out of lives.
+Tank Wars is a two-player competitive game developed in Java. The game features tank movement, shooting, power-ups, destructible and indestructible walls, animations, sounds, and a dynamic split-screen view. Players battle until one runs out of lives.
 ![img.png](img.png)
 
 ## Features Implemented 
